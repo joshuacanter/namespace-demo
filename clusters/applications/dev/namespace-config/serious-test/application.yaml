@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1 kind: Application metadata:
+  name: serious-test-namespace
+spec:
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  source:
+    repoURL: https://github.com/joshuacanter/namespace-demo
+    targetRevision: HEAD
+    path: templates/namespace-config
+    helm:
+      valueFiles:
+      - /clusters/configuration/dev/namespace-config/serious-test/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
