@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-namespaces
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: /clusters/applications/dev/namespace-config
+    repoURL: https://github.com/joshuacanter/namespace-demo
+    targetRevision: HEAD
+    directory:
+      recurse: true
