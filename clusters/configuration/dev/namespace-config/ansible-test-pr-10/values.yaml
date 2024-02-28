@@ -1,0 +1,4 @@
+namespace: ansible-test-pr-10
+
+quota:
+  requests: cpu 2
