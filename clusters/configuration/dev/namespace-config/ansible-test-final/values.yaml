@@ -1,0 +1,4 @@
+namespace: ansible-test-final
+
+quota:
+  requests: cpu 2
