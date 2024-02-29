@@ -1,0 +1,4 @@
+namespace: aap-test
+
+quota:
+  requests: cpu 2
