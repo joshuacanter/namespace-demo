@@ -20,24 +20,12 @@ spec:
       script: >
         #!/usr/bin/env bash
 
-        pwd
-
         echo "Creating folders for $NAMESPACE"
 
         echo
         $(workspaces.source.path)/clusters/configuration/dev/namespace-config/$NAMESPACE
 
-
-        pwd
-
         mkdir -p clusters/configuration/dev/namespace-config/$NAMESPACE
-
-        cd
-        $(workspaces.source.path)/clusters/configuration/dev/namespace-config/$NAMESPACE
-
-        pwd
-
-        ls
 
         cd $(workspaces.source.path)
 
@@ -45,47 +33,26 @@ spec:
 
         echo "Creating values.yaml"
 
-        echo "namespace: $NAMESPACE" >
+        cat templates/yaml/values.yaml | envsubst >
         clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
 
 
+        echo "************************************"
 
         cat clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
 
+        echo "Creating application.yaml"
 
-        echo "apiVersion: argoproj.io/v1alpha1 kind: Application metadata:
-          name: $NAMESPACE-namespace
-          namespace: openshift-gitops
-        spec:
-          project: default
-          syncPolicy:
-            automated:
-              prune: true
-              selfHeal: true
-          source:
-            repoURL: https://github.com/joshuacanter/namespace-demo
-            targetRevision: HEAD
-            path: templates/namespace-config
-            helm:
-              valueFiles:
-              - /clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
-          destination:
-            server: https://kubernetes.default.svc
-            namespace: openshift-gitops" > clusters/applications/dev/namespace-config/$NAMESPACE/application.yaml
+        cat templates/yaml/application.yaml | envsubst > clusters/applications/dev/namespace-config/$NAMESPACE/application.yaml
 
 
-        echo "Values: "  
-
-        cat clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
-
-        echo "ApplicationSet: "  
+        echo "************************************"  
 
         cat
         clusters/applications/dev/namespace-config/$NAMESPACE/application.yaml
 
-        ls -R
+        ls -R clusters
 
-        pwd
       workingDir: /workspace/source/
   workspaces:
     - description: The workspace which contains the GitOps repo
