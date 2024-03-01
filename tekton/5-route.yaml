@@ -4,7 +4,6 @@ metadata:
   name: el-trigger-ref-listener
   namespace: namespace-creator
 spec:
-  host: el-trigger-ref-listener-namespace-creator.apps.cluster-5b97z.dynamic.redhatworkshops.io
   port:
     targetPort: http-listener
   to:
