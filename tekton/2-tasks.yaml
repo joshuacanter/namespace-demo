@@ -33,9 +33,8 @@ spec:
 
         echo "Creating values.yaml"
 
-        cat templates/yaml/values.yaml | envsubst >
+        echo "namespace: $NAMESPACE" >
         clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
-
 
         echo "************************************"
 
@@ -43,7 +42,30 @@ spec:
 
         echo "Creating application.yaml"
 
-        cat templates/yaml/application.yaml | envsubst > clusters/applications/dev/namespace-config/$NAMESPACE/application.yaml
+        echo "apiVersion: argoproj.io/v1alpha1 
+        
+        kind: Application 
+        
+        metadata:
+          name: $NAMESPACE-namespace
+          namespace: openshift-gitops
+        spec:
+          project: default
+          syncPolicy:
+            automated:
+              prune: true
+              selfHeal: true
+          source:
+            repoURL: https://github.com/joshuacanter/namespace-demo
+            targetRevision: HEAD
+            path: templates/namespace-config
+            helm:
+              valueFiles:
+              - /clusters/configuration/dev/namespace-config/$NAMESPACE/values.yaml
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: openshift-gitops" > clusters/applications/dev/namespace-config/$NAMESPACE/application.yaml
+
 
 
         echo "************************************"  
