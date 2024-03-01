@@ -1,0 +1,4 @@
+namespace: ansible-quota-test
+
+quota:
+  requests: cpu 0.5
