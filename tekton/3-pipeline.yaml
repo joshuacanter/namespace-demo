@@ -1,0 +1,128 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: namespace-creation-pipeline
+  namespace: namespace-creator
+spec:
+  params:
+    - name: GIT_REPO
+      type: string
+    - name: GIT_REVISION
+      type: string
+    - name: NAMESPACE
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+        - name: refspec
+          value: ''
+        - name: submodules
+          value: 'true'
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'true'
+        - name: crtFileName
+          value: ca-bundle.crt
+        - name: subdirectory
+          value: ''
+        - name: sparseCheckoutDirectories
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+        - name: httpProxy
+          value: ''
+        - name: httpsProxy
+          value: ''
+        - name: noProxy
+          value: ''
+        - name: verbose
+          value: 'true'
+        - name: gitInitImage
+          value: >-
+            registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:a652e2fec41694745977d385c845244db3819acca926d85a52c77515f1f2e612
+        - name: userHome
+          value: /home/git
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source
+    - name: create-namespace-config
+      params:
+        - name: NAMESPACE
+          value: $(params.NAMESPACE)
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: Task
+        name: create-namespace-config
+      workspaces:
+        - name: source
+          workspace: source
+    - name: git-cli
+      params:
+        - name: BASE_IMAGE
+          value: >-
+            cgr.dev/chainguard/git:root-2.39@sha256:7759f87050dd8bacabe61354d75ccd7f864d6b6f8ec42697db7159eccd491139
+        - name: GIT_USER_NAME
+          value: joshuacanter
+        - name: GIT_USER_EMAIL
+          value: laxlabs@gmail.com
+        - name: GIT_SCRIPT
+          value: >
+            tree && git config --global --add safe.directory '/workspace/source'
+            && git checkout -b $(params.NAMESPACE)-create && git status && git
+            add  clusters/* && git commit -m "$(params.NAMESPACE) initial
+            creation" && git push --set-upstream origin
+            $(params.NAMESPACE)-create
+        - name: USER_HOME
+          value: ~/
+        - name: VERBOSE
+          value: 'true'
+      runAfter:
+        - create-namespace-config
+      taskRef:
+        kind: ClusterTask
+        name: git-cli
+      workspaces:
+        - name: source
+          workspace: source
+        - name: basic-auth
+          workspace: git-creds
+    - name: github-open-pr
+      params:
+        - name: GITHUB_HOST_URL
+          value: api.github.com
+        - name: API_PATH_PREFIX
+          value: ''
+        - name: REPO_FULL_NAME
+          value: joshuacanter/namespace-demo
+        - name: GITHUB_TOKEN_SECRET_NAME
+          value: my-basic-auth-secret
+        - name: GITHUB_TOKEN_SECRET_KEY
+          value: token
+        - name: AUTH_TYPE
+          value: Bearer
+        - name: HEAD
+          value: $(params.NAMESPACE)-create
+        - name: BASE
+          value: main
+        - name: BODY
+          value: Automated creation of $(params.NAMESPACE)
+        - name: TITLE
+          value: Create $(params.NAMESPACE)
+      runAfter:
+        - git-cli
+      taskRef:
+        kind: Task
+        name: github-open-pr
+  workspaces:
+    - name: source
+    - name: git-creds

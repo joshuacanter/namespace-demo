@@ -1,0 +1,91 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: trigger-ref-listener
+  namespace: namespace-creator
+spec:
+  serviceAccountName: tekton-triggers-example-sa
+  triggers:
+    - triggerRef: trigger
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: trigger
+  namespace: namespace-creator
+spec:
+  bindings:
+    - kind: TriggerBinding
+      ref: pipeline-binding
+  interceptors:
+    - params:
+        - name: filter
+          value: 'header.match(''Event'', ''external_request'')'
+      ref:
+        kind: ClusterInterceptor
+        name: cel
+  template:
+    ref: pipeline-template
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template
+  namespace: namespace-creator
+spec:
+  params:
+    - default: main
+      description: The git revision
+      name: gitbranch
+    - description: The git repository url
+      name: gitrepositoryurl
+    - description: The message to print
+      name: namespace
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: simple-pipeline-run-
+      spec:
+        params:
+          - name: NAMESPACE
+            value: $(tt.params.namespace)
+          - name: GIT_REVISION
+            value: $(tt.params.gitbranch)
+          - name: GIT_REPO
+            value: $(tt.params.gitrepositoryurl)
+        pipelineRef:
+          name: namespace-creation-pipeline
+        workspaces:
+          - name: source
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+                storageClassName: crc-csi-hostpath-provisioner
+                volumeMode: Filesystem
+          - name: git-creds
+            secret:
+              secretName: my-basic-auth-secret
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: pipeline-binding
+  namespace: namespace-creator
+spec:
+  params:
+    - name: gitbranch
+      value: $(body.branch)
+    - name: gitrepositoryurl
+      value: $(body.url)
+    - name: namespace
+      value: $(body.namespace)
+
