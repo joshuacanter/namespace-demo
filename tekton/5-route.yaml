@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: el-trigger-ref-listener
+  namespace: namespace-creator
+spec:
+  host: el-trigger-ref-listener-namespace-creator.apps.cluster-5b97z.dynamic.redhatworkshops.io
+  port:
+    targetPort: http-listener
+  to:
+    kind: Service
+    name: el-trigger-ref-listener
+    weight: 100
+  wildcardPolicy: None

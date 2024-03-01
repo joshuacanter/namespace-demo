@@ -8,7 +8,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: /clusters/applications/dev/namespace-config
+    path: clusters/applications/dev/namespace-config
     repoURL: https://github.com/joshuacanter/namespace-demo
     targetRevision: HEAD
     directory:
