@@ -55,6 +55,7 @@ spec:
 
         echo "apiVersion: argoproj.io/v1alpha1 kind: Application metadata:
           name: $NAMESPACE-namespace
+          namespace: openshift-gitops
         spec:
           project: default
           syncPolicy:
