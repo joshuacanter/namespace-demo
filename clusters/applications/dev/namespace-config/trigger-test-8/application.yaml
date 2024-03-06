@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1 
+kind: Application 
+metadata:
+  name: trigger-test-8-namespace
+  namespace: openshift-gitops
+spec:
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  source:
+    repoURL: https://github.com/joshuacanter/namespace-demo
+    targetRevision: HEAD
+    path: templates/namespace-config
+    helm:
+      valueFiles:
+      - /clusters/configuration/dev/namespace-config/trigger-test-8/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
