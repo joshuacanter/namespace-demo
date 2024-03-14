@@ -1,0 +1,5 @@
+namespace: earth
+
+quota:
+  requests: 
+    cpu: 2
