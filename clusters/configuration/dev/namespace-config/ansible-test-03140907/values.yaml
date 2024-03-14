@@ -1,0 +1,4 @@
+namespace: ansible-test-03140907
+
+quota:
+  requests: cpu 2
