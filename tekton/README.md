@@ -20,6 +20,6 @@ ROUTE=$(oc get route el-trigger-ref-listener -o jsonpath={.spec.host})
 curl -k --location 'http://$ROUTE/' --header 'Event: external_request' --header 'Content-Type: application/json' --data '{
     "url": "https://github.com/joshuacanter/namespace-demo.git",
     "branch": "main",
-    "namespace": "trigger-test-2"
+    "namespace": "trigger-test-4"
 }'
 ```
