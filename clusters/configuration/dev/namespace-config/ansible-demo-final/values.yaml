@@ -1,0 +1,5 @@
+namespace: ansible-demo-final
+
+quota:
+  requests: 
+    cpu: 2
