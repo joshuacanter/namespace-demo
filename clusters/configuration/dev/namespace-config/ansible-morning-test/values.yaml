@@ -1,0 +1,5 @@
+namespace: ansible-morning-test
+
+quota:
+  requests: 
+    cpu: 2
