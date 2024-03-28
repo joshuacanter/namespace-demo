@@ -1,0 +1,5 @@
+namespace: test-me-now
+
+quota:
+  requests: 
+    cpu: 2
